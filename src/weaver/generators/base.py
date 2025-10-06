@@ -8,7 +8,7 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Dict, List, Optional, Any
 from dataclasses import dataclass, field
-from src.config import Config
+from src.weaver.config import Config
 import subprocess
 import os
 import shutil

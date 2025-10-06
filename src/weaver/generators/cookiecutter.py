@@ -4,12 +4,9 @@ Cookiecutter-based project generator for Weaver.
 This generator uses your actual cookiecutter template at:
 https://github.com/adrianmoses/entity-resolution-cookiecutter
 """
-import tempfile
-import json
 from pathlib import Path
-from typing import Dict, List, Optional, Any, Union
-from urllib.parse import urlparse
-from src.config import Config
+from typing import Dict, List, Any
+from src.weaver.config import Config
 import subprocess
 import shutil
 
@@ -20,10 +17,7 @@ from rich import print as rprint
 
 from .base import (
     BaseGenerator,
-    GenerationResult,
-    ConfigurationError,
-    GenerationError,
-    PrerequisiteError
+    GenerationResult
 )
 
 class CookiecutterGenerator(BaseGenerator):
