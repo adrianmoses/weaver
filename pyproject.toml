@@ -10,7 +10,7 @@ readme = "README.md"
 requires-python = ">=3.12"
 license = {text = "MIT"}
 authors = [
-    {name = "Adrian Moses", email = "your.email@example.com"}
+    {name = "Adrian Moses", email = "adrian@adrianmoses.com"}
 ]
 keywords = ["scaffolding", "project-template", "cookiecutter", "cli"]
 classifiers = [
