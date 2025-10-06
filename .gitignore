@@ -11,3 +11,4 @@ wheels/
 
 # test project dirs
 pokemon_team_builder/
+.idea/
