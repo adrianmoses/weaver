@@ -33,7 +33,7 @@ Repository = "https://github.com/adrianmoses/weaver"
 Issues = "https://github.com/adrianmoses/weaver/issues"
 
 [project.scripts]
-weaver = "weaver.cli:main"
+weaver = "src.weaver.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
