@@ -6,21 +6,14 @@ Weaver CLI - Spinning up data connections with style! 🕷️
 A fun, powerful CLI for scaffolding entity-relationship projects.
 """
 import typer
-import os
-from pathlib import Path
-from src.config import TEMPLATES, Config, create_config
-from typing import List, Optional
+from src.weaver.config import TEMPLATES, Config, create_config
+from typing import Optional
 from rich.console import Console
-from rich.prompt import Prompt, Confirm, IntPrompt
 from rich.panel import Panel
 from rich.table import Table
-from rich import print as rprint
-from cookiecutter.main import cookiecutter
-import subprocess
-import json
 
-from src.generators.base import GenerationResult
-from src.generators.cookiecutter import CookiecutterGenerator
+from src.weaver.generators import GenerationResult
+from src.weaver.generators.cookiecutter import CookiecutterGenerator
 
 app = typer.Typer(
     name="weaver",
