@@ -12,7 +12,7 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 
-from src.weaver.generators import GenerationResult
+from src.weaver.generators.base import GenerationResult
 from src.weaver.generators.cookiecutter import CookiecutterGenerator
 
 app = typer.Typer(
