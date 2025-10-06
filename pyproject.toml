@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=77.0.3"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "weaver"
+version = "0.1.0"
+description = "🕷️ Weave your data into beautiful connections"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "cookiecutter>=2.6.0",
+    "rich>=14.1.0",
+    "typer>=0.17.3",
+]
+
+[project.scripts]
+weaver = "cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
