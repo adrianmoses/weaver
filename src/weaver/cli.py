@@ -160,7 +160,7 @@ def list_templates() -> None:
 @app.command()
 def version():
     """Show weaver version"""
-    console.print("🕷️ Weaver CLI v0.1.0")
+    console.print("🕷️ Weaver CLI v0.1.3")
     console.print("Spinning up data connections with style!")
 
 
