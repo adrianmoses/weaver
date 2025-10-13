@@ -6,7 +6,7 @@ https://github.com/adrianmoses/entity-resolution-cookiecutter
 """
 from pathlib import Path
 from typing import Dict, List, Any
-from src.weaver.config import Config
+from weaver.config import Config
 import subprocess
 import shutil
 

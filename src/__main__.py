@@ -1,4 +1,4 @@
-from src.weaver.cli import main
+from weaver.cli import main
 
 if __name__ == "__main__":
     main()

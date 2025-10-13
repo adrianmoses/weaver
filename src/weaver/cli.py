@@ -6,14 +6,14 @@ Weaver CLI - Spinning up data connections with style! 🕷️
 A fun, powerful CLI for scaffolding entity-relationship projects.
 """
 import typer
-from src.weaver.config import TEMPLATES, Config, create_config
+from weaver.config import TEMPLATES, Config, create_config
 from typing import Optional
 from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 
-from src.weaver.generators.base import GenerationResult
-from src.weaver.generators.cookiecutter import CookiecutterGenerator
+from weaver.generators.base import GenerationResult
+from weaver.generators.cookiecutter import CookiecutterGenerator
 
 app = typer.Typer(
     name="weaver",
@@ -160,7 +160,7 @@ def list_templates() -> None:
 @app.command()
 def version():
     """Show weaver version"""
-    console.print("🕷️ Weaver CLI v0.1.3")
+    console.print("🕷️ Weaver CLI v0.1.4")
     console.print("Spinning up data connections with style!")
 
 

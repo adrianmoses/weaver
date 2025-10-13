@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "data-weaver-cli"
-version = "0.1.3"
+version = "0.1.4"
 description = "🕷️ Weave your data into beautiful connections"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -33,7 +33,7 @@ Repository = "https://github.com/adrianmoses/weaver"
 Issues = "https://github.com/adrianmoses/weaver/issues"
 
 [project.scripts]
-weaver = "src.weaver.cli:main"
+weaver = "weaver.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
