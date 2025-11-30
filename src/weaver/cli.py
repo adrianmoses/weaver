@@ -78,11 +78,91 @@ def create_advanced_search_project(project_name: Optional[str] = None) -> Genera
     return result
 
 
+def create_knowledge_graph_project(
+    project_name: Optional[str] = None,
+    enable_ontology: bool = True,
+    llm_provider: str = "anthropic",
+    database_host: str = "localhost",
+    database_port: str = "5432"
+) -> GenerationResult:
+    """Create a knowledge graph project with ontology generation support"""
+
+    # Create configuration for knowledge graph project
+    config = create_config(
+        project_name=project_name or "knowledge-graph-project",
+        project_slug=(project_name or "knowledge-graph-project").lower()\
+            .replace(" ", "_")\
+            .replace("-", "_"),
+        description="Knowledge graph project with entity resolution and ontology generation",
+        author_name="Knowledge Engineer",
+        author_email="engineer@example.com",
+
+        data_sources=["web_scraping", "api"],
+        database="neo4j",
+        search_engine="none",
+        orchestrator="prefect",
+        api_framework="fastapi",
+
+        include_api_scraping=True,
+        include_web_scraping=True,
+        include_vector_search=False,
+        include_nlp=True,  # NLP useful for entity extraction
+        use_docker=True,
+        use_pytest=True
+    )
+
+    # Set project type
+    config.project_type = "knowledge_graph"
+
+    # Configure ontology generation
+    config.include_ontology_generator = enable_ontology
+    config.generate_ontology = enable_ontology
+    config.llm_provider = llm_provider
+
+    # Configure database for entity/relationship recommendations
+    # Neo4j typically uses different port, but we also support PostgreSQL for schema inspection
+    config.database_type = "postgresql"  # For ontology generation schema inspection
+    config.database_host = database_host
+    config.database_port = database_port
+
+    # Show what we're about to create
+    show_project_summary(config)
+
+    if enable_ontology:
+        console.print(f"\n🔮 [bold magenta]Ontology Generation[/bold magenta]")
+        console.print(f"  • LLM Provider: {llm_provider}")
+        console.print(f"  • Database for Schema Inspection: {config.database_type}://{database_host}:{database_port}")
+        console.print("  • Will generate entity and relationship recommendations")
+
+    # Generate the project
+    console.print("\n🕷️ [bold cyan]Starting knowledge graph project generation...[/bold cyan]")
+    gen = CookiecutterGenerator()
+    result = gen.generate(config)
+
+    if result.success:
+        _show_success_message(config, result)
+
+        if enable_ontology:
+            console.print(f"\n🔮 [bold magenta]Ontology Generation Tips:[/bold magenta]")
+            console.print(f"  • Set {llm_provider.upper()}_API_KEY in your .env file")
+            console.print(f"  • Inspect schema: [cyan]python -m {config.project_slug}.ontology.schema_inspector 'postgresql://user:pass@{database_host}:{database_port}/dbname'[/cyan]")
+            console.print(f"  • Generate ontology: [cyan]python -m {config.project_slug}.ontology.llm_designer 'postgresql://user:pass@{database_host}:{database_port}/dbname' MyOntology[/cyan]")
+    else:
+        _show_error_message(result)
+
+    return result
+
+
 @app.command()
 def create(
     project_name: Optional[str] = typer.Option(None, "--name", "-n", help="Name of your project"),
     template: Optional[str] = typer.Option(None, "--template", "-t", help="Project template to use"),
     list_deps: bool = typer.Option(False, "--list-deps", help="Show dependencies without creating project"),
+    # Knowledge graph options
+    enable_ontology: bool = typer.Option(True, "--ontology/--no-ontology", help="Enable ontology generation (knowledge-graph only)"),
+    llm_provider: str = typer.Option("anthropic", "--llm", help="LLM provider for ontology generation (anthropic or openai)"),
+    db_host: str = typer.Option("localhost", "--db-host", help="Database host for schema inspection"),
+    db_port: str = typer.Option("5432", "--db-port", help="Database port for schema inspection"),
     ):
     """🕷️ Enhanced create command with generator support"""
 
@@ -105,6 +185,30 @@ def create(
 
         create_advanced_search_project(
             project_name=project_name,
+        )
+
+    elif template == "knowledge-graph":
+        if list_deps:
+            # Create config to show dependencies
+            config = Config()
+            config.project_name = project_name or "knowledge-graph-project"
+            config.project_slug = project_name.lower().replace("-", "_") or "knowledge_graph_project"
+            config.description = "Knowledge graph project"
+            config.author_name = "Engineer"
+            config.author_email = "engineer@example.com"
+            config.data_sources = ["web_scraping", "api"]
+            config.database = "neo4j"
+            config.include_nlp = True
+            config.include_ontology_generator = enable_ontology
+            get_dependencies(config)
+            return
+
+        create_knowledge_graph_project(
+            project_name=project_name,
+            enable_ontology=enable_ontology,
+            llm_provider=llm_provider,
+            database_host=db_host,
+            database_port=db_port,
         )
 
     else:
@@ -149,8 +253,7 @@ def list_templates() -> None:
     for template_name, template_info in templates.items():
         panel = Panel(
             f"[bold]{template_info.get('description', 'No description')}[/bold]\n"
-            f"[dim]Repository: {template_info.get('repo', 'N/A')}\n"
-            f"Directory: {template_info.get('directory', 'N/A')}[/dim]",
+            f"[dim]Template: {template_info.get('template', 'N/A')}[/dim]",
             title=f"[cyan]{template_name}[/cyan]",
             border_style="blue"
         )
@@ -221,6 +324,10 @@ def show_project_summary(config: Config, template_name: str = None):
     summary_table.add_column("Component", style="cyan bold", width=20)
     summary_table.add_column("Choice", style="white")
 
+    # Add project type if specified
+    if config.project_type and config.project_type != "basic":
+        summary_table.add_row("Project Type", config.project_type.replace("_", " ").title())
+
     summary_table.add_row("Data Sources", ", ".join(config.data_sources))
     summary_table.add_row("Storage", config.database)
     summary_table.add_row("Pipeline", config.orchestrator)
@@ -230,6 +337,11 @@ def show_project_summary(config: Config, template_name: str = None):
     summary_table.add_row("Vector Search", "✅" if config.include_vector_search else "❌")
     summary_table.add_row("NLP Processing", "✅" if config.include_nlp else "❌")
     summary_table.add_row("Docker Support", "✅" if config.use_docker else "❌")
+
+    # Add ontology generation info if enabled
+    if config.include_ontology_generator:
+        summary_table.add_row("Ontology Generation", "✅")
+        summary_table.add_row("LLM Provider", config.llm_provider.upper())
 
     console.print(summary_table)
 

@@ -6,6 +6,8 @@ class Config:
         self.description = ""
         self.author_name = ""
         self.author_email = ""
+        self.github_username = ""
+        self.project_type = "basic"  # basic, search_engine, knowledge_graph
         self.data_sources = []
         self.database = ""
         self.search_engine = ""
@@ -17,6 +19,14 @@ class Config:
         self.include_nlp = False
         self.use_docker = False
         self.use_pytest = False
+        # Ontology generation settings
+        self.include_ontology_generator = False
+        self.generate_ontology = False
+        self.llm_provider = "anthropic"
+        # Database configuration
+        self.database_type = "postgresql"
+        self.database_host = "localhost"
+        self.database_port = "5432"
 
 def create_config(project_name, project_slug, description, author_name, author_email, data_sources,
                   database, search_engine, orchestrator, api_framework, include_api_scraping,

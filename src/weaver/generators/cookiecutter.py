@@ -1,8 +1,7 @@
 """
 Cookiecutter-based project generator for Weaver.
 
-This generator uses your actual cookiecutter template at:
-https://github.com/adrianmoses/entity-resolution-cookiecutter
+This generator uses the bundled entity-resolution cookiecutter template.
 """
 from pathlib import Path
 from typing import Dict, List, Any
@@ -21,48 +20,66 @@ from .base import (
 )
 
 class CookiecutterGenerator(BaseGenerator):
-    """Generator that uses your entity-resolution-cookiecutter template"""
+    """Generator that uses the bundled entity-resolution cookiecutter template"""
 
-    # Your actual template repository
-    TEMPLATE_REPO = "https://github.com/adrianmoses/entity-resolution-cookiecutter"
+    @property
+    def TEMPLATE_REPO(self) -> str:
+        """Get path to bundled template"""
+        # Get the path to the templates directory
+        templates_dir = Path(__file__).parent.parent / "templates" / "entity-resolution"
+        return str(templates_dir.absolute())
 
-    # Template mappings based on your cookiecutter structure
+    # Template mappings - all use the bundled entity-resolution template
+    # with different context overrides
     TEMPLATE_MAPPINGS = {
         "advanced-search": {
-            "repo": TEMPLATE_REPO,
             "description": "Hybrid sparse and vector search",
             "context_overrides": {
-                "include_vector_search": True,
-                "data_sources": "api,datasets",
-                "database": "postgresql"
+                "include_vector_search": "yes",
+                "include_api_scraping": "yes",
+                "include_web_scraping": "no",
+                "database": "postgresql",
+                "search_engine": "vector_hybrid",
+                "orchestrator": "prefect",
+                "api_framework": "fastapi"
             }
         },
         "knowledge-graph": {
-            "repo": TEMPLATE_REPO,
             "description": "AI company knowledge graph",
             "context_overrides": {
-                "include_vector_search": False,
-                "data_sources": "web_scraping,api,github",
-                "database": "neo4j"
+                "project_type": "knowledge_graph",
+                "include_vector_search": "no",
+                "include_api_scraping": "yes",
+                "include_web_scraping": "yes",
+                "database": "neo4j",
+                "search_engine": "none",
+                "orchestrator": "prefect",
+                "api_framework": "fastapi"
             }
         },
         "news-analyzer": {
-            "repo": TEMPLATE_REPO,
             "description": "News aggregator with bias analysis",
             "context_overrides": {
-                "include_vector_search": True,
-                "data_sources": "rss,web_scraping",
+                "include_vector_search": "yes",
+                "include_web_scraping": "yes",
+                "include_nlp": "yes",
                 "database": "postgresql",
-                "include_nlp": True
+                "search_engine": "elasticsearch",
+                "orchestrator": "prefect",
+                "api_framework": "fastapi"
             }
         },
         "basic": {
-            "repo": TEMPLATE_REPO,
             "description": "Basic entity-relationship project",
             "context_overrides": {
-                "include_vector_search": False,
-                "data_sources": "api",
-                "database": "sqlite"
+                "project_type": "basic",
+                "include_vector_search": "no",
+                "include_api_scraping": "yes",
+                "include_web_scraping": "no",
+                "database": "sqlite",
+                "search_engine": "none",
+                "orchestrator": "simple",
+                "api_framework": "fastapi"
             }
         }
     }
@@ -163,26 +180,18 @@ class CookiecutterGenerator(BaseGenerator):
             )
 
     def _prepare_cookiecutter_context(self, config: Config) -> Dict[str, Any]:
-        """Prepare context dictionary for your cookiecutter template"""
+        """Prepare context dictionary for cookiecutter template"""
 
-        # Start with base context that matches your cookiecutter.json
+        # Start with base context that matches cookiecutter.json
         context = {
             "project_name": config.project_name,
             "project_slug": config.project_slug,
             "description": config.description,
             "author_name": config.author_name,
-            "email": config.author_email,
-            "use_pytest": "yes",
+            "author_email": config.author_email,
+            "github_username": config.github_username or "yourusername",
+            "project_type": config.project_type or "basic",
         }
-
-        # Map our config to your cookiecutter variables
-        # (Based on common cookiecutter patterns - adjust to match your actual cookiecutter.json)
-
-        # Data sources - convert list to comma-separated string if needed
-        if isinstance(config.data_sources, list):
-            context["data_sources"] = ",".join(config.data_sources)
-        else:
-            context["data_sources"] = config.data_sources
 
         # Storage backend
         context["database"] = config.database
@@ -193,21 +202,31 @@ class CookiecutterGenerator(BaseGenerator):
         # API framework
         context["api_framework"] = config.api_framework
 
-        # Feature flags
+        # Feature flags - convert booleans to "yes"/"no"
         context["use_docker"] = "yes" if config.use_docker else "no"
+        context["use_pytest"] = "yes" if config.use_pytest else "no"
         context["include_nlp"] = "yes" if config.include_nlp else "no"
-        context["include_vector_search"] = "yes" if config.include_vector_search else "n"
+        context["include_vector_search"] = "yes" if config.include_vector_search else "no"
+        context["include_api_scraping"] = "yes" if config.include_api_scraping else "no"
+        context["include_web_scraping"] = "yes" if config.include_web_scraping else "no"
 
         # Search engine
-        if config.search_engine:
-            context["search_engine"] = config.search_engine
-        else:
-            context["search_engine"] = "none"
+        context["search_engine"] = config.search_engine or "none"
+
+        # Ontology generation settings
+        context["include_ontology_generator"] = "yes" if config.include_ontology_generator else "no"
+        context["generate_ontology"] = "yes" if config.generate_ontology else "no"
+        context["llm_provider"] = config.llm_provider or "anthropic"
+
+        # Database configuration
+        context["database_type"] = config.database_type or config.database or "postgresql"
+        context["database_host"] = config.database_host or "localhost"
+        context["database_port"] = config.database_port or "5432"
 
         return context
 
     def validate_config(self, config: Config) -> List[str]:
-        """Validate configuration for your cookiecutter template"""
+        """Validate configuration for cookiecutter template"""
         errors = []
 
         # Basic validation
@@ -220,34 +239,44 @@ class CookiecutterGenerator(BaseGenerator):
         if not config.author_name:
             errors.append("Author name is required")
 
-        # Data source validation
-        if not config.data_sources:
-            errors.append("At least one data source must be specified")
-
-        valid_data_sources = ["api", "web_scraping", "datasets"]
-        if isinstance(config.data_sources, list):
-            invalid_sources = set(config.data_sources) - set(valid_data_sources)
-            if invalid_sources:
-                errors.append(f"Invalid data sources: {', '.join(invalid_sources)}")
+        # Project type validation
+        valid_project_types = ["basic", "search_engine", "knowledge_graph"]
+        if config.project_type and config.project_type not in valid_project_types:
+            errors.append(f"Invalid project type: {config.project_type}. Must be one of: {', '.join(valid_project_types)}")
 
         # Storage backend validation
         valid_backends = ["postgresql", "sqlite", "neo4j", "mongodb"]
-        if config.database not in valid_backends:
+        if config.database and config.database not in valid_backends:
             errors.append(f"Invalid storage backend: {config.database}. Must be one of: {', '.join(valid_backends)}")
+
+        # Database type validation (for database_type field)
+        valid_db_types = ["postgresql", "mysql", "sqlite"]
+        if config.database_type and config.database_type not in valid_db_types:
+            errors.append(f"Invalid database type: {config.database_type}. Must be one of: {', '.join(valid_db_types)}")
 
         # Vector search validation
         if config.include_vector_search and config.database not in ["postgresql"]:
             errors.append("Vector search currently only supported with PostgreSQL + pgvector")
 
         # Pipeline orchestrator validation
-        valid_orchestrators = ["prefect", "airflow"]
-        if config.orchestrator not in valid_orchestrators:
-            errors.append(f"Invalid pipeline orchestrator: {config.orchestrator}")
+        valid_orchestrators = ["prefect", "dagster", "simple"]
+        if config.orchestrator and config.orchestrator not in valid_orchestrators:
+            errors.append(f"Invalid pipeline orchestrator: {config.orchestrator}. Must be one of: {', '.join(valid_orchestrators)}")
 
         # API framework validation
         valid_apis = ["fastapi", "flask", "django", "none"]
-        if config.api_framework not in valid_apis:
-            errors.append(f"Invalid API framework: {config.api_framework}")
+        if config.api_framework and config.api_framework not in valid_apis:
+            errors.append(f"Invalid API framework: {config.api_framework}. Must be one of: {', '.join(valid_apis)}")
+
+        # Search engine validation
+        valid_search_engines = ["none", "vector_hybrid", "elasticsearch"]
+        if config.search_engine and config.search_engine not in valid_search_engines:
+            errors.append(f"Invalid search engine: {config.search_engine}. Must be one of: {', '.join(valid_search_engines)}")
+
+        # LLM provider validation
+        valid_llm_providers = ["anthropic", "openai"]
+        if config.llm_provider and config.llm_provider not in valid_llm_providers:
+            errors.append(f"Invalid LLM provider: {config.llm_provider}. Must be one of: {', '.join(valid_llm_providers)}")
 
         return errors
 
@@ -396,7 +425,7 @@ class CookiecutterGenerator(BaseGenerator):
         return {
             name: {
                 "description": info["description"],
-                "repo": info["repo"]
+                "template": "entity-resolution (bundled)"
             }
             for name, info in self.TEMPLATE_MAPPINGS.items()
         }
