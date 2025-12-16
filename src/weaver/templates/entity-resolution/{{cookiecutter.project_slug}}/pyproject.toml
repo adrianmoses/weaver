@@ -43,7 +43,7 @@ dependencies = [
     {%- endif %}
     {%- elif cookiecutter.database == 'neo4j' -%}
     "neo4j>=5.14.0",
-    "py2neo>=2022.1.0",
+    "py2neo>=2021.2.4",
     {%- elif cookiecutter.database == 'mongodb' -%}
     "motor>=3.3.0",
     "pymongo>=4.6.0",

@@ -21,7 +21,7 @@ Before starting, ensure you have:
 1. **Python 3.8+** installed
 2. **Weaver CLI** installed:
    ```bash
-   pip install weaver
+   pip install data-weaver-cli
    # OR if developing locally
    cd /path/to/weaver
    uv sync
