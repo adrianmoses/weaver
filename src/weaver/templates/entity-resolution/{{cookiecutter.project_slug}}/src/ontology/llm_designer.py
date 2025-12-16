@@ -321,19 +321,19 @@ Analyze this schema and design an ontology by identifying:
 Respond with a valid JSON object following this exact structure:
 
 ```json
-{
+{{
   "description": "Brief description of what this ontology models",
   "classes": [
-    {
+    {{
       "name": "EntityClassName",
       "description": "What this entity represents",
       "properties": ["property1", "property2"],
       "parent_class": "ParentClassName or null",
       "source_tables": ["table_name1", "table_name2"]
-    }
+    }}
   ],
   "properties": [
-    {
+    {{
       "name": "propertyName",
       "description": "What this property represents",
       "data_type": "string|integer|float|boolean|date|datetime",
@@ -341,10 +341,10 @@ Respond with a valid JSON object following this exact structure:
       "range": "TargetClassName or null for literal values",
       "is_required": false,
       "is_unique": false
-    }
+    }}
   ],
   "relationships": [
-    {
+    {{
       "name": "relationshipName",
       "description": "What this relationship represents",
       "source_class": "SourceClassName",
@@ -352,9 +352,9 @@ Respond with a valid JSON object following this exact structure:
       "cardinality": "one-to-one|one-to-many|many-to-many",
       "inverse_name": "inverseRelationshipName or null",
       "source_foreign_key": "foreign_key_name or null"
-    }
+    }}
   ]
-}
+}}
 ```
 
 ## Important Guidelines
@@ -557,6 +557,8 @@ def main():
     """Example usage of the OntologyDesigner."""
     import sys
     from schema_inspector import SchemaInspector
+    from dotenv import load_dotenv
+    load_dotenv()
 
     if len(sys.argv) < 2:
         print("Usage: python llm_designer.py <connection_string> [ontology_name]")
