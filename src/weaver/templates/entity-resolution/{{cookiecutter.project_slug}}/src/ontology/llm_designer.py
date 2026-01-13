@@ -320,6 +320,7 @@ Analyze this schema and design an ontology by identifying:
 
 Respond with a valid JSON object following this exact structure:
 
+{% raw %}
 ```json
 {{
   "description": "Brief description of what this ontology models",
@@ -356,6 +357,7 @@ Respond with a valid JSON object following this exact structure:
   ]
 }}
 ```
+{% endraw %}
 
 ## Important Guidelines
 
